@@ -1,99 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPG-based SpO2 Monitor</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>📱 Camera-based PPG SpO2 Monitor</h1>
-            <p class="disclaimer">⚠️ For research/educational purposes only. Not for medical diagnosis.</p>
-        </header>
-
-        <div class="main-content">
-            <!-- Camera Section -->
-            <div class="camera-section">
-                <div class="video-container">
-                    <video id="video" autoplay playsinline></video>
-                    <canvas id="output-canvas" style="display: none;"></canvas>
-                    <div id="finger-guide" class="finger-guide">
-                        <div class="guide-circle"></div>
-                        <p>Place finger over camera lens</p>
-                    </div>
-                </div>
-                <div class="controls">
-                    <button id="record" class="btn btn-primary">Start Measurement</button>
-                    <button id="stopBtn" class="btn btn-secondary" disabled>Stop Measurement</button>
-                </div>
-                <div id="status" class="status">Ready to start</div>
-            </div>
-
-            <!-- Results Section -->
-            <div class="results-section">
-                <div class="metric-card">
-                    <div class="metric-label">Heart Rate</div>
-                    <div class="metric-value" id="heartRate">--</div>
-                    <div class="metric-unit">BPM</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">SpO2</div>
-                    <div class="metric-value" id="spo2">--</div>
-                    <div class="metric-unit">%</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Signal Quality</div>
-                    <div class="metric-value" id="quality">--</div>
-                    <div class="metric-unit">%</div>
-                </div>
-            </div>
-
-            <!-- Debug Info -->
-            <div class="debug-section">
-                <div class="debug-item">
-                    <span id="frame-fps">Frame count: 0, FPS: 0</span>
-                </div>
-                <div class="debug-item">
-                    <span id="frame-time">Frame time: 0.00</span>
-                </div>
-                <div class="debug-item">
-                    <span id="video-time">Video time: 0.00</span>
-                </div>
-                <div class="debug-item">
-                    <span id="signal-window">nWindow: 0</span>
-                </div>
-                <div class="debug-item">
-                    <span id="delay">Frame compute delay: 0</span>
-                </div>
-                <div class="debug-item">
-                    <span id="resolution">Video resolution: -- x --</span>
-                </div>
-            </div>
-
-            <!-- PPG Waveform -->
-            <div class="chart-section">
-                <h3>PPG Waveform (Real-time)</h3>
-                <div id="chart"></div>
-            </div>
-
-            <!-- Instructions -->
-            <div class="instructions">
-                <h3>How to Use</h3>
-                <ol>
-                    <li>Allow camera access when prompted</li>
-                    <li>Gently cover the rear camera and flash with your fingertip</li>
-                    <li>Keep your finger steady for 15-30 seconds</li>
-                    <li>Ensure good lighting (flash will help)</li>
-                    <li>Stay still and breathe normally</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="realTimeChart.js"></script>
-    <script src="app.js"></script>
+    <title>Vital Signs Monitor</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="/src/main.css">
+</head>
+
+<body>
+    <header>
+        <h2>Vital Signs Monitor</h2>
+    </header>
+    <main>
+        <button id="record" style="margin: 10px; width:100px; height:30px; font-size:15px;">Measure</button>
+        <div>
+            <video id='video'></video>
+        </div>
+        <div>
+            <canvas id="output-canvas"></canvas>
+        </div>
+        <div id="chart"></div>
+        <p id="resolution"></p>
+        <p id="delay"></p>
+        <p id="frame-fps"></p>
+        <p id="frame-time"></p>
+        <p id="video-time"></p>
+        <p id="signal"></p>
+        <p id="signal-window"></p>
+        
+        <!-- SpO2 Results -->
+        <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+            <h3 style="margin-top: 0;">Vital Signs</h3>
+            <p id="heartRate" style="font-size: 18px; font-weight: bold;">Heart Rate: -- BPM</p>
+            <p id="spo2" style="font-size: 18px; font-weight: bold; color: #e91e63;">SpO2: -- %</p>
+            <p id="quality" style="font-size: 16px;">Signal Quality: -- %</p>
+        </div>
+    </main>
+    <script src="./src/real-time-line-chart.js"></script>
+    <script src="./src/main.js"></script>
+    <!-- disclaimer -->
+    <p>**For demonstration purposes only**</p>
+
 </body>
+
 </html>
