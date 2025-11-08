@@ -107,6 +107,8 @@ function computeFrame() {
     // TODO: calculate AC from AC-DC only each WINDOW_LENGTH time:
     if (nFrame % WINDOW_LENGTH == 0) {
       document.getElementById('signal-window').innerHTML = `nWindow: ${nFrame / WINDOW_LENGTH}`;
+      console.log('Window complete at nFrame:', nFrame, 'buffers:', redRawBuffer.length, greenRawBuffer.length);
+      
       if ((nFrame / 100) % 2 == 0) {
         isSignal = 1;
         ac = detrend(acdc);
@@ -119,6 +121,8 @@ function computeFrame() {
             greenSignal.push(1 - greenRawBuffer[greenRawBuffer.length - WINDOW_LENGTH + i]);
           }
         }
+        
+        console.log('Green signal length:', greenSignal.length);
         
         if (greenSignal.length === WINDOW_LENGTH) {
           const greenDetrended = detrend(greenSignal);
@@ -133,8 +137,12 @@ function computeFrame() {
             greenProcessedBuffer = greenProcessedBuffer.slice(-SPO2_BUFFER_SIZE);
           }
           
+          console.log('Processed buffers updated:', redProcessedBuffer.length, greenProcessedBuffer.length);
+          
           // Calculate measurements
           calculateVitalSigns();
+        } else {
+          console.log('Not enough green signal data yet');
         }
         
       } else {
@@ -161,16 +169,25 @@ function computeFrame() {
 }
 
 function calculateVitalSigns() {
-  if (redProcessedBuffer.length < 90 || redRawBuffer.length < 90) return;
+  console.log('calculateVitalSigns called');
+  console.log('Buffer lengths - redProcessed:', redProcessedBuffer.length, 'redRaw:', redRawBuffer.length);
+  
+  if (redProcessedBuffer.length < 90 || redRawBuffer.length < 90) {
+    console.log('Not enough data yet');
+    return;
+  }
   
   // Calculate Heart Rate
   heartRate = calculateHeartRate(redProcessedBuffer, 60);
+  console.log('Heart Rate calculated:', heartRate);
   
   // Calculate SpO2
   spo2 = calculateSpO2(redProcessedBuffer, greenProcessedBuffer, redRawBuffer, greenRawBuffer);
+  console.log('SpO2 calculated:', spo2);
   
   // Calculate Signal Quality
   signalQuality = calculateSignalQuality(redProcessedBuffer);
+  console.log('Signal Quality calculated:', signalQuality);
   
   // Update display
   updateVitalSignsDisplay();
@@ -220,25 +237,47 @@ function calculateThreshold(signal) {
 }
 
 function calculateSpO2(redProcessed, greenProcessed, redRaw, greenRaw) {
-  if (redRaw.length < 90 || greenRaw.length < 90) return spo2;
+  console.log('SpO2 calc - lengths:', {
+    redProcessed: redProcessed.length,
+    greenProcessed: greenProcessed.length,
+    redRaw: redRaw.length,
+    greenRaw: greenRaw.length
+  });
+  
+  if (redRaw.length < 90 || greenRaw.length < 90) {
+    console.log('SpO2: Not enough raw data');
+    return spo2;
+  }
+  
+  if (redProcessed.length < 90 || greenProcessed.length < 90) {
+    console.log('SpO2: Not enough processed data');
+    return spo2;
+  }
   
   // Calculate AC (pulsatile component) from processed signals
   const redAC = calculateAC(redProcessed);
   const greenAC = calculateAC(greenProcessed);
   
   // Calculate DC (baseline) from raw signals
-  const redDC = calculateDC(redRaw.slice(-SPO2_BUFFER_SIZE));
-  const greenDC = calculateDC(greenRaw.slice(-SPO2_BUFFER_SIZE));
+  const redDC = calculateDC(redRaw.slice(-Math.min(SPO2_BUFFER_SIZE, redRaw.length)));
+  const greenDC = calculateDC(greenRaw.slice(-Math.min(SPO2_BUFFER_SIZE, greenRaw.length)));
   
-  if (redDC === 0 || greenDC === 0 || redAC === 0 || greenAC === 0) return spo2;
+  console.log('AC/DC values:', { redAC, greenAC, redDC, greenDC });
+  
+  if (redDC === 0 || greenDC === 0 || redAC === 0 || greenAC === 0) {
+    console.log('SpO2: Zero AC or DC value');
+    return spo2;
+  }
   
   // R value (ratio of ratios)
   // Using red and green channels (green approximates IR in phone cameras)
   const R = (redAC / redDC) / (greenAC / greenDC);
+  console.log('R value:', R);
   
   // Empirical calibration formula
   // Note: Coefficients may need tuning based on device
   let newSpo2 = 110 - 25 * R;
+  console.log('Raw SpO2 before clamping:', newSpo2);
   
   // Clamp to valid range
   newSpo2 = Math.max(70, Math.min(100, newSpo2));
@@ -248,6 +287,7 @@ function calculateSpO2(redProcessed, greenProcessed, redRaw, greenRaw) {
     newSpo2 = spo2 * 0.7 + newSpo2 * 0.3;
   }
   
+  console.log('Final SpO2:', Math.round(newSpo2));
   return Math.round(newSpo2);
 }
 
@@ -292,11 +332,20 @@ function calculateNoise(signal) {
 }
 
 function updateVitalSignsDisplay() {
-  document.getElementById('heartRate').textContent = 
-    `Heart Rate: ${heartRate > 0 ? heartRate : '--'} BPM`;
+  console.log('Updating display with:', { heartRate, spo2, signalQuality });
   
-  document.getElementById('spo2').textContent = 
-    `SpO2: ${spo2 > 0 ? spo2 : '--'} %`;
+  const hrElement = document.getElementById('heartRate');
+  const spo2Element = document.getElementById('spo2');
+  const qualityElement = document.getElementById('quality');
+  
+  if (hrElement) {
+    hrElement.textContent = `Heart Rate: ${heartRate > 0 ? heartRate : '--'} BPM`;
+  }
+  
+  if (spo2Element) {
+    spo2Element.textContent = `SpO2: ${spo2 > 0 ? spo2 : '--'} %`;
+    spo2Element.style.color = spo2 > 0 ? '#e91e63' : '#666';
+  }
   
   const qualityText = signalQuality > 0 ? signalQuality : '--';
   let qualityColor = '#666';
@@ -309,8 +358,11 @@ function updateVitalSignsDisplay() {
     qualityColor = '#f44336'; // red
   }
   
-  document.getElementById('quality').innerHTML = 
-    `Signal Quality: <span style="color: ${qualityColor}; font-weight: bold;">${qualityText}%</span>`;
+  if (qualityElement) {
+    qualityElement.innerHTML = `Signal Quality: <span style="color: ${qualityColor}; font-weight: bold;">${qualityText}%</span>`;
+  }
+  
+  console.log('Display updated successfully');
 }
 
 function windowMean(y) {
