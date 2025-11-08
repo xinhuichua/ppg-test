@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPG-based SpO2 Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 Camera-based PPG SpO2 Monitor</h1>
+            <p class="disclaimer">⚠️ For research/educational purposes only. Not for medical diagnosis.</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Camera Section -->
+            <div class="camera-section">
+                <div class="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div id="finger-guide" class="finger-guide">
+                        <div class="guide-circle"></div>
+                        <p>Place finger over camera lens</p>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button id="startBtn" class="btn btn-primary">Start Measurement</button>
+                    <button id="stopBtn" class="btn btn-secondary" disabled>Stop Measurement</button>
+                </div>
+                <div id="status" class="status">Ready to start</div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="metric-card">
+                    <div class="metric-label">Heart Rate</div>
+                    <div class="metric-value" id="heartRate">--</div>
+                    <div class="metric-unit">BPM</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SpO2</div>
+                    <div class="metric-value" id="spo2">--</div>
+                    <div class="metric-unit">%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Signal Quality</div>
+                    <div class="metric-value" id="quality">--</div>
+                    <div class="metric-unit">%</div>
+                </div>
+            </div>
+
+            <!-- PPG Waveform -->
+            <div class="chart-section">
+                <h3>PPG Waveform</h3>
+                <canvas id="ppgChart"></canvas>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>How to Use</h3>
+                <ol>
+                    <li>Allow camera access when prompted</li>
+                    <li>Gently cover the rear camera and flash with your fingertip</li>
+                    <li>Keep your finger steady for 15-30 seconds</li>
+                    <li>Ensure good lighting (flash will help)</li>
+                    <li>Stay still and breathe normally</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
