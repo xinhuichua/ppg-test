@@ -18,14 +18,14 @@
             <div class="camera-section">
                 <div class="video-container">
                     <video id="video" autoplay playsinline></video>
-                    <canvas id="canvas" style="display: none;"></canvas>
+                    <canvas id="output-canvas" style="display: none;"></canvas>
                     <div id="finger-guide" class="finger-guide">
                         <div class="guide-circle"></div>
                         <p>Place finger over camera lens</p>
                     </div>
                 </div>
                 <div class="controls">
-                    <button id="startBtn" class="btn btn-primary">Start Measurement</button>
+                    <button id="record" class="btn btn-primary">Start Measurement</button>
                     <button id="stopBtn" class="btn btn-secondary" disabled>Stop Measurement</button>
                 </div>
                 <div id="status" class="status">Ready to start</div>
@@ -50,10 +50,32 @@
                 </div>
             </div>
 
+            <!-- Debug Info -->
+            <div class="debug-section">
+                <div class="debug-item">
+                    <span id="frame-fps">Frame count: 0, FPS: 0</span>
+                </div>
+                <div class="debug-item">
+                    <span id="frame-time">Frame time: 0.00</span>
+                </div>
+                <div class="debug-item">
+                    <span id="video-time">Video time: 0.00</span>
+                </div>
+                <div class="debug-item">
+                    <span id="signal-window">nWindow: 0</span>
+                </div>
+                <div class="debug-item">
+                    <span id="delay">Frame compute delay: 0</span>
+                </div>
+                <div class="debug-item">
+                    <span id="resolution">Video resolution: -- x --</span>
+                </div>
+            </div>
+
             <!-- PPG Waveform -->
             <div class="chart-section">
-                <h3>PPG Waveform</h3>
-                <canvas id="ppgChart"></canvas>
+                <h3>PPG Waveform (Real-time)</h3>
+                <div id="chart"></div>
             </div>
 
             <!-- Instructions -->
@@ -70,6 +92,8 @@
         </div>
     </div>
 
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="realTimeChart.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
